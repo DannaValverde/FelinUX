@@ -21,11 +21,13 @@ class QueryRequest(BaseModel):
 # ----------------------------
 # Funciones utilitarias
 # ----------------------------
-def get_all_datasets():
+def get_all_datasets(limit=10):
     try:
         resp = requests.get(BASE_URL, timeout=30)
         resp.raise_for_status()
-        return resp.json()
+        data = resp.json()
+        # Limitar a los primeros `limit` datasets
+        return dict(list(data.items())[:limit])
     except requests.RequestException:
         return {}
 
@@ -68,18 +70,13 @@ def get_dataset_csv_files(dataset_id, files_info):
 # ----------------------------
 @app.post("/query")
 def query_osdr(request: QueryRequest):
-    query_lower = request.query.lower()
-
-    # 1️⃣ Obtener datasets desde el nuevo endpoint
-    datasets = get_all_datasets()
+    # 1️⃣ Obtener datasets
+    datasets = get_all_datasets(limit=10)
     if not datasets:
         return {"summary": "No se encontraron estudios.", "papers": []}
 
     studies = []
-    for idx, (dataset_id, dataset_info) in enumerate(datasets.items()):
-        if idx >= 10:  # <-- Limita a los primeros 10 datasets
-            break
-
+    for dataset_id, dataset_info in datasets.items():
         metadata = get_dataset_metadata(dataset_id, dataset_info.get("REST_URL"))
         title = metadata.get("study title") or metadata.get("study description") or ""
         description = metadata.get("study description", "")
@@ -90,10 +87,12 @@ def query_osdr(request: QueryRequest):
         if isinstance(description, list):
             description = " ".join(description)
 
-        # Filtrar por relevancia simple (título o descripción contiene la query)
-        query_lower = request.query.lower()
-        if query_lower not in title.lower() and query_lower not in description.lower():
-            continue
+        studies.append({
+            "osd_numeric_id": dataset_id,
+            "title_pre": title,
+            "description": description,
+            "files": get_dataset_csv_files(dataset_id, dataset_info.get("files"))
+        })
 
     if not studies:
         return {"summary": "No se encontraron estudios relevantes.", "papers": []}
