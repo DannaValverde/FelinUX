@@ -1,65 +1,69 @@
 // src/lib/OsdrApi.ts
 // Cliente minimalista para la NASA OSDR RAG API (FastAPI)
-// - Sin componentes ni hooks: solo funciones que devuelven JSON tipado
-// - Manejo de timeout/cancelación con AbortController
-// - Tipos estrictos (puedes extenderlos si tu backend agrega campos)
 
 export type QueryRequest = {
   query: string;
-  top_k?: number;                // por defecto 5 en el backend
-  filters?: Record<string, unknown> | null;
+  top_k?: number;                              // default 5
+  filters?: Record<string, unknown> | null;    // e.g. { program: "Apollo", year: ["2020","2021"] }
 };
 
 export type RebuildRequest = {
-  limit?: number;                // por defecto 608
-  include_api?: boolean;         // por defecto true
-  include_csv?: boolean;         // por defecto true
+  limit?: number;           // default 1000 (backend)
+  include_csv?: boolean;    // default true
 };
 
+
+
 export type PaperMeta = {
-  origin: "osdr" | "csv";
-  osd_numeric_id?: number;
-  title_pre?: string;
+  origin: "csv" | "osdr" | string;
+  id?: string;              // en meta viene id redundante en algunos casos
   title?: string;
-  related_osdr?: string[];
-  related_csv?: string[];
-  files?: Array<{ name: string; url: string }>;
-  // Acepta llaves adicionales del backend:
+  authors?: string;
+  program?: string;
+  date?: string;
+  year?: string;
+  link?: string;
+  journal?: string;
+  abstract?: string;
   [k: string]: unknown;
 };
 
 export type PaperItem = {
   id: string;
-  text_preview?: string;
   meta: PaperMeta;
+  text_preview?: string;
+  score?: number;
 };
 
 export type PapersResponse = {
   papers: PaperItem[];
+  total?: number;
 };
 
 export type PaperResponse = PaperItem;
 
-export type QueryResultItem = {
-  id: string;
-  meta: PaperMeta;
-  text_preview: string;
-};
-
 export type QueryResponse = {
   summary: string;
-  results: QueryResultItem[];
+  papers: PaperItem[];       // <-- antes “results”
+  total_found: number;
 };
 
 export type RebuildResponse = {
-  status: string;   // "ok"
+  status: string;            // "ok"
   indexed: number;
+  message?: string;
+};
+
+export type StatsResponse = {
+  total_papers: number;
+  programs: string[];
+  years: string[];
 };
 
 export type ClientOptions = {
   baseUrl?: string;                    // p.ej. "http://localhost:8000"
-  headers?: Record<string, string>;    // encabezados extra
-  timeoutMs?: number;                  // timeout para cada request
+  headers?: Record<string, string>;
+  timeoutMs?: number;
 };
 
 export class OsdrApiError extends Error {
@@ -91,7 +95,7 @@ async function doFetchJSON<T>(
 
   try {
     const res = await fetch(url, { ...init, signal: controller.signal });
-    const text = await res.text(); // capturamos el texto para mejores errores
+    const text = await res.text();
     const json = text ? JSON.parse(text) : null;
 
     if (!res.ok) {
@@ -104,13 +108,11 @@ async function doFetchJSON<T>(
     return json as T;
   } catch (err: any) {
     if (err?.name === "AbortError") {
-      throw new OsdrApiError("Request timeout/cancelled", undefined);
+      throw new OsdrApiError("Request timeout/cancelled");
     }
-    // Si el backend devolvió texto no JSON, atrapamos parse fallido:
     if (err instanceof SyntaxError) {
-      throw new OsdrApiError("Invalid JSON in response", undefined);
+      throw new OsdrApiError("Invalid JSON in response");
     }
-    // Propagamos errores de red u OsdrApiError
     throw err;
   } finally {
     if (timer) clearTimeout(timer);
@@ -126,28 +128,28 @@ export function createOsdrApi(options: ClientOptions = {}) {
   const timeoutMs = options.timeoutMs ?? 30000;
 
   return {
-    /** Devuelve la base configurada (por si quieres mostrarla en logs/diagnóstico) */
     get base() {
       return baseUrl;
     },
 
-    /** POST /rebuild_index */
-    async rebuildIndex(body: RebuildRequest): Promise<RebuildResponse> {
+    // POST /rebuild_index
+    async rebuildIndex(body: RebuildRequest = {}): Promise<RebuildResponse> {
       const url = buildUrl(baseUrl, "/rebuild_index");
       return doFetchJSON<RebuildResponse>(
         url,
-        {
-          method: "POST",
-          headers: defaultHeaders,
-          body: JSON.stringify(body ?? {}),
-        },
+        { method: "POST", headers: defaultHeaders, body: JSON.stringify(body) },
         timeoutMs
       );
     },
 
-    /** GET /papers?limit= */
-    async listPapers(limit = 200): Promise<PapersResponse> {
-      const url = buildUrl(baseUrl, `/papers?limit=${encodeURIComponent(limit)}`);
+    // GET /papers?limit=&program=&year=
+    async listPapers(params?: { limit?: number; program?: string; year?: string }): Promise<PapersResponse> {
+      const q = new URLSearchParams();
+      if (params?.limit != null) q.set("limit", String(params.limit));
+      if (params?.program) q.set("program", params.program);
+      if (params?.year) q.set("year", params.year);
+      const qs = q.toString() ? `?${q.toString()}` : "";
+      const url = buildUrl(baseUrl, `/papers${qs}`);
       return doFetchJSON<PapersResponse>(
         url,
         { method: "GET", headers: defaultHeaders },
@@ -155,11 +157,9 @@ export function createOsdrApi(options: ClientOptions = {}) {
       );
     },
 
-    /** GET /paper/{paper_id} */
+    // GET /paper/{paper_id}
     async getPaper(paperId: string): Promise<PaperResponse> {
-      if (!paperId) {
-        throw new OsdrApiError("paperId is required");
-      }
+      if (!paperId) throw new OsdrApiError("paperId is required");
       const url = buildUrl(baseUrl, `/paper/${encodeURIComponent(paperId)}`);
       return doFetchJSON<PaperResponse>(
         url,
@@ -168,11 +168,19 @@ export function createOsdrApi(options: ClientOptions = {}) {
       );
     },
 
-    /** POST /query */
+    // GET /stats
+    async stats(): Promise<StatsResponse> {
+      const url = buildUrl(baseUrl, "/stats");
+      return doFetchJSON<StatsResponse>(
+        url,
+        { method: "GET", headers: defaultHeaders },
+        timeoutMs
+      );
+    },
+
+    // POST /query
     async query(payload: QueryRequest): Promise<QueryResponse> {
-      if (!payload?.query?.trim()) {
-        throw new OsdrApiError("query is required");
-      }
+      if (!payload?.query?.trim()) throw new OsdrApiError("query is required");
       const url = buildUrl(baseUrl, "/query");
       return doFetchJSON<QueryResponse>(
         url,
@@ -182,7 +190,6 @@ export function createOsdrApi(options: ClientOptions = {}) {
           body: JSON.stringify({
             query: payload.query,
             top_k: payload.top_k ?? 5,
-            // si viene null/undefined lo omitimos para no chocar con pydantic
             ...(payload.filters != null ? { filters: payload.filters } : {}),
           }),
         },
@@ -190,18 +197,4 @@ export function createOsdrApi(options: ClientOptions = {}) {
       );
     },
   };
-}
-
-// Utilidad opcional: helper de timeout externo (por si quieres ajustar por llamada)
-// Ejemplo: await withTimeout(api.query({query:"..." }), 10000)
-export async function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), ms);
-  try {
-    // Nota: esto solo cancela si pasas el signal a fetch;
-    // aquí es más útil para envolver otras promesas propias.
-    return await p;
-  } finally {
-    clearTimeout(timeout);
-  }
 }
