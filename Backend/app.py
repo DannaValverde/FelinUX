@@ -20,14 +20,13 @@ app = FastAPI(title="NASA OSDR RAG API")
 class QueryRequest(BaseModel):
     query: str
     top_k: int = 5
-    filters: Optional[dict] = None  # por ejemplo {"program":"APOLLO"}
+    filters: Optional[dict] = None
 
 class RebuildRequest(BaseModel):
     limit: int = 608
     include_api: bool = True
     include_csv: bool = True
 
-# Cargar índice al inicio
 index, meta = load_index()
 
 def load_papers_csv(path=CSV_PAPERS_PATH):
@@ -56,16 +55,29 @@ def build_meta_from_studies(osdr_studies, csv_papers):
         title = s.get("title_pre") or ""
         desc = (s.get("raw", {}).get("Study Summary") or "") or s.get("raw", {}).get("study_description", "") or ""
         text = title + "\n" + (desc if isinstance(desc, str) else " ")
-        items.append({"id": id_, "text": text, "meta": {"origin": "osdr", **s}})
-    for p in csv_papers:
+        items.append({"id": id_, "text": text, "meta": {"origin": "osdr", **s, "related_csv": []}})
+
+    # Relacionar CSV con OSDR
+    for i, p in enumerate(csv_papers):
+        related_osdr = []
+        for s in osdr_studies:
+            if title_similarity(s.get("title_pre", ""), p["title"]) > 0.6:
+                related_osdr.append(f"osdr-{s.get('osd_numeric_id')}")
         items.append({
             "id": p["id"],
             "text": p["title"] + "\n" + (p.get("raw", {}).get("abstract", "") or ""),
-            "meta": {"origin": "csv", **p}
+            "meta": {"origin": "csv", **p, "related_osdr": related_osdr}
         })
     return items
 
-@app.post("/rebuild_index", summary="Reconstruir y guardar índice FAISS usando API + CSV")
+def title_similarity(title1, title2):
+    """Devuelve un valor de similitud básico entre títulos (0 a 1)."""
+    set1, set2 = set(title1.lower().split()), set(title2.lower().split())
+    if not set1 or not set2:
+        return 0
+    return len(set1 & set2) / len(set1 | set2)
+
+@app.post("/rebuild_index")
 def rebuild_index(req: RebuildRequest):
     osdr_studies = []
     if req.include_api:
@@ -73,7 +85,6 @@ def rebuild_index(req: RebuildRequest):
             osdr_studies = search_studies_osdr("", size=req.limit) or []
         except Exception as e:
             print("osdr search error:", e)
-            osdr_studies = []
     csv_papers = load_papers_csv() if req.include_csv else []
     items = build_meta_from_studies(osdr_studies, csv_papers)
     if not items:
@@ -85,20 +96,18 @@ def rebuild_index(req: RebuildRequest):
     save_index(faiss_index, meta_dict)
     return {"status": "ok", "indexed": len(items)}
 
-@app.get("/papers", summary="Listar papers indexados (meta)")
+@app.get("/papers")
 def list_papers(limit: int = 200):
     global index, meta
     index, meta = load_index()
     if not meta:
         return {"papers": []}
-    papers = meta.get("items", [])[:limit]
-    return {"papers": papers}
+    return {"papers": meta.get("items", [])[:limit]}
 
-@app.get("/paper/{paper_id}", summary="Detalle de un paper por id")
+@app.get("/paper/{paper_id}")
 def get_paper(paper_id: str):
     _, meta = load_index()
-    items = meta.get("items", [])
-    for it in items:
+    for it in meta.get("items", []):
         if it["id"] == paper_id:
             if it["meta"].get("origin") == "osdr":
                 osd_id = it["meta"].get("osd_numeric_id")
@@ -110,7 +119,7 @@ def get_paper(paper_id: str):
             return it
     raise HTTPException(status_code=404, detail="Paper no encontrado")
 
-@app.post("/query", summary="Buscar y resumir (usa FAISS + LLM)")
+@app.post("/query")
 def query_osdr(request: QueryRequest):
     global index, meta
     index, meta = load_index()
@@ -133,19 +142,11 @@ def query_osdr(request: QueryRequest):
             "meta": meta_item,
             "text_preview": preview[:1000]
         })
-        context_text += f"Título: {meta_item.get('title_pre') or meta_item.get('title') or ''}\n"
-        context_text += f"Origen: {meta_item.get('origin')}\n"
-        context_text += f"{preview[:1500]}\n---\n"
+        context_text += (
+            f"Título: {meta_item.get('title_pre') or meta_item.get('title') or ''}\n"
+            f"Origen: {meta_item.get('origin')}\n"
+            f"{preview[:1500]}\n---\n"
+        )
 
     summary = generate_summary(f"Consulta: {request.query}\n\nContexto:\n{context_text}")
     return {"summary": summary, "results": results}
-
-@app.post("/upload_csv", summary="Subir CSV de papers (columna title y link)")
-async def upload_csv(file: UploadFile = File(...)):
-    if not file.filename.endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Sube un CSV.")
-    os.makedirs(os.path.dirname(CSV_PAPERS_PATH) or ".", exist_ok=True)
-    content = await file.read()
-    with open(CSV_PAPERS_PATH, "wb") as f:
-        f.write(content)
-    return {"status": "uploaded", "path": CSV_PAPERS_PATH}

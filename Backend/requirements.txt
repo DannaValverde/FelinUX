@@ -10,3 +10,6 @@ requests
 pandas
 streamlit
 python-multipart
+altair
+python-dotenv
+streamlit-aggrid
