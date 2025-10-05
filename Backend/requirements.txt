@@ -7,3 +7,6 @@ transformers
 sentence-transformers
 faiss-cpu
 requests
+pandas
+streamlit
+python-multipart
