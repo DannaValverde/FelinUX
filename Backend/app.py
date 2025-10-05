@@ -76,23 +76,24 @@ def query_osdr(request: QueryRequest):
         return {"summary": "No se encontraron estudios.", "papers": []}
 
     studies = []
-    for dataset_id, dataset_info in datasets.items():
+    for idx, (dataset_id, dataset_info) in enumerate(datasets.items()):
+        if idx >= 10:  # <-- Limita a los primeros 10 datasets
+            break
+
         metadata = get_dataset_metadata(dataset_id, dataset_info.get("REST_URL"))
         title = metadata.get("study title") or metadata.get("study description") or ""
         description = metadata.get("study description", "")
 
+        # Convertir a string si son listas
+        if isinstance(title, list):
+            title = " ".join(title)
+        if isinstance(description, list):
+            description = " ".join(description)
+
         # Filtrar por relevancia simple (título o descripción contiene la query)
-        if request.query.lower() not in title.lower() and request.query.lower() not in description.lower():
+        query_lower = request.query.lower()
+        if query_lower not in title.lower() and query_lower not in description.lower():
             continue
-
-        csv_files = get_dataset_csv_files(dataset_id, dataset_info.get("files"))
-
-        studies.append({
-            "osd_numeric_id": dataset_id,
-            "title_pre": title if title else "Sin título",
-            "description": description,
-            "files": csv_files
-        })
 
     if not studies:
         return {"summary": "No se encontraron estudios relevantes.", "papers": []}
@@ -128,3 +129,7 @@ def query_osdr(request: QueryRequest):
 
     summary = generate_summary(context_text)
     return {"summary": summary, "papers": papers}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
