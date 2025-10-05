@@ -365,6 +365,128 @@
         }
       },
       "text_preview": "ALSDA Transformed Data     Sample Preparation - Alamar Biosciences     Assay Information - Alamar Biosciences     Sample Preparation - Immune HD71     Assay Information - Immune HD71     Sample Preparation - Cardiovascular HDCVD9     Assay Information - Cardiovascular HDCVD9     Treatment Protocol     sample collection     Comprehensive Metabolic Panel\n"
+    },
+    {
+      "id": "osdr-738",
+      "meta": {
+        "origin": "osdr",
+        "osd_numeric_id": "738",
+        "osd_label": "OSD-738",
+        "title_pre": "Animal Husbandry     sample collection     Protein Gel Info     Protein Blot Transfer Info     Blocking Protocol     Labeling Information     Primary Antibody     Secondary Antibody     Western Blot Imaging     Western Blot Quantification     Image Metadata     ALSDA Transformed Data     Assay Information     ECLIA Procedure",
+        "program": "International Space Station (ISS)",
+        "mission_start": "09/21/2014",
+        "mission_end": "10/25/2014",
+        "raw": {
+          "Authoritative Source URL": "OSD-738/",
+          "Flight Program": "International Space Station (ISS)",
+          "Mission": {
+            "End Date": "10/25/2014",
+            "Start Date": "09/21/2014",
+            "Name": "SpaceX-4"
+          },
+          "Material Type": "Brain",
+          "Project Identifier": "RR-1",
+          "Accession": "OSD-738",
+          "Identifiers": "LSDS-107     GLDS-677",
+          "Study Identifier": "OSD-738",
+          "Study Protocol Name": "Animal Husbandry     sample collection     Protein Gel Info     Protein Blot Transfer Info     Blocking Protocol     Labeling Information     Primary Antibody     Secondary Antibody     Western Blot Imaging     Western Blot Quantification     Image Metadata     ALSDA Transformed Data     Assay Information     ECLIA Procedure",
+          "Study Assay Technology Type": "Western Blot     Western Blot     Western Blot     Western Blot     ECLIA",
+          "Acknowledgments": "",
+          "Study Assay Technology Platform": "BioRad ChemiDoc     BioRad ChemiDoc     BioRad ChemiDoc     BioRad ChemiDoc     MESO-QuickPlex SQ-120MM",
+          "Study Person": {
+            "Last Name": "Roy Haddad Rodriguez Saju Roy Gil Keane Scott Mao de Rivero Vaccari",
+            "Middle Initials": " A. W. T. W.",
+            "First Name": "Upal Roey Angel Alen Deepa Mario Robert Ryan Xiao Juan Pablo"
+          },
+          "Study Protocol Type": "Animal Husbandry     sample collection     Protein Gel Info     Protein Blot Transfer Info     Blocking Protocol     Labeling Information     Primary Antibody     Secondary Antibody     Western Blot Imaging     Western Blot Quantification     Image Metadata     data transformation     Assay Information     ECLIA Procedure",
+          "Space Program": "NASA",
+          "Study Title": "Effects of Space Flight on Inflammasome Activation in the Brain of Mice (Brain, Western Blot and ECLIA)",
+          "Study Factor Type": "Space Flight",
+          "Study Public Release Date": 1741564800.0,
+          "Parameter Value": "",
+          "thumbnail": "/geode-py/ws/studies/OSD-738/image",
+          "Study Factor Name": "Spaceflight",
+          "Study Assay Measurement Type": "protein quantification     protein quantification     protein quantification     protein quantification     Immunoassay",
+          "Project Type": "Spaceflight Study",
+          "Factor Value": "",
+          "Data Source Accession": "",
+          "Project Title": "Role of DJ1 protein in dopamine dysregulation of the brain in spaceflight condition",
+          "Study Funding Agency": "This project was supported by a grant from NASA (NASA-MUREP) to UR and JPdRV. Tissues were awarded to UR by the NASA Biological Institutional Scientific Collection (NBISC).",
+          "Study Protocol Description": "C57BL/6 female mice (16-week-old, Jackson Labs) were flown to the ISS as part of NASA’s 1st RR-1 on SpaceX-4 CRS-4 Dragon cargo spacecraft . During flight, animals were kept at an ambient temperature of 26 to 28 degrees C in a 12-hour light and dark cycle. Flight animals received water and a food bar diet specifically designed by NASA ad libitum. RR-1 mission animals were on board of the Dragon capsule for 4 days (transit time) and then spent 37 days in the ISS. Animals were kept in similar conditions to flight animals (ambient temperature of 26 to 28 degrees C in a 12-hour light and dark cycle). Telemetry data (with a 4-day delay) from the flight group was used to keep the ground control animals under similar conditions (housed in RR-1 flight hardware within an environmental simulator under the same conditions as the ISS). Water and food conditions were the same as to the flight animal group as described above. Animals in the vivarium group were control animals that were housed under standard laboratory conditions. In addition, animals in the baseline group consisted of mice from the same cohorts as the flight mice that were sacrificed at the time of launch.     Within 4 hours of splashdown, flight and ground control animals were sacrificed and brains were removed and dissected. For the study focusing on the forebrain, microdissections of the entire hippocampus and primary motor cortex were performed following well-established rodent brain microdissection protocols, and a brain atlas served as a reference to ensure accuracy of brain region identification. Following brain dissection, samples were stored at −80 degrees Celsius until further analysis. Tissues used in this study consisted of brain tissue, minus the cortex and hippocampus. Brain tissue samples were obtained from by the authors through an award from the NASA Biological Institutional Scientific Collection (NBISC).     Brain lysates were run and resolved in 4–20% Criterion TGX Stain-Free precast gels (Bio-Rad) at 300V.     Samples were transferred via a TransBlot turbo using a PVDF transfer membrane. The transfer lasted seven minutes in duration.     All membranes were blocked using I-Block overnight at four degrees Celsius.     Membranes were incubated with primary antibodies against caspase-1 (Novus Biologicals), ASC (Santa Cruz), IL-1beta (Cell Signaling) at a dilution of 1:1000. b-actin (Sigma Aldric) was used as a standard and protein loading control.     Membranes were then incubated with primary antibodies against caspase-1 (Novus Biologicals), ASC (Santa Cruz), IL-1beta (Cell Signaling) at a dilution of 1:1000. b-actin (Sigma Aldric) was used as a standard and protein loading control. All primary antibodies used a mouse antigen host and underwent two five minute washes with I-Block at room temperature.     All secondary Anti-Mouse HRP antibodies used a goat antigen host. The membranes then underwent one five minute wash and two ten minute washes with I-Block at room temperature.     The western Blots were imaged through chemilluminescence for one minute using the ChemiDoc Touch Gel Imaging System.     The Western Blots were quantified using the Silk Scientific Corporation UN- SCAN-IT gel software.     Each image contains the twenty sample lanes labeled left to right: Vivarium 1 (M16), Ground 1 (M36), Baseline 1 (M6), Flight 1 (M26), Vivarium 2 (M17), Ground 2 (M37), Baseline 2 (M7), Flight 2 (M27), Vivarium 3 (M18), Ground 3 (M38), Baseline 3 (M8) , Flight 3 (M28), Vivarium 4 (M19), Ground 4 (M39), Baseline 4 (M9), Flight 4 (M29), Vivarium 5 (M20), Ground 5 (M40), Baseline 5 (M10), Flight 5 (M30).     To enable maximal data reuse (for machine-readable approaches), the submitted version of this dataset was subsequently transformed and edited to be aligned with a reusable template, which was created through feedback provided by subject matter experts in the ALSDA Analysis Working Group. This transformed reusable version is structured so all results are standardized into specific rows (source/subject) and columns (measures). This enables all assay results to be identically structured for efficient data mining. The transformed column headers and the submitted term from which they derive are defined in the study data dictionary file.     Using protein lysates, a V-PLEX ECLIA kit (MSD) was used to measure the inflammatory profile in the different brain sections using the MESO-QuickPlex SQ-120MM (MSD).     Briefly, to measure the protein levels of TNF-alpha, IL-2, IFN-gamma, IL-5, IL-6, IL-12p70 and IL-10, after washing steps, the plate was incubated overnight with 50 uL of samples. The following day, after washing steps, samples were incubated in detection antibody for 2 hrs followed by 3 more washings steps and addition of 2X Read Buffer. After obtaining the quantity of protein in pg/mL using using the MESO-QuickPlex SQ-120MM, samples were then normalized to total protein loaded.",
+          "Experiment Platform": "RR-1 Flight Hardware",
+          "Characteristics": "",
+          "Study Grant Number": "",
+          "Study Publication Author List": "Roy U  Hadad R  Rodriguez AA  Saju A  Roy D  Gil M  Keane RW  Scott RT  Mao XW  de Rivero Vaccari RVJP.",
+          "Project Link": "https://osdr.nasa.gov/bio/repo/data/experiments/OS-878",
+          "Study Publication Title": "Effects of Space Flight on Inflammasome Activation in the Brain of Mice",
+          "Managing NASA Center": "Ames Research Center (ARC)",
+          "Study Description": "Space exploration exposes astronauts to stressors that alter the immune response, rendering them vulnerable to infections and diseases. In this study, we aimed to determine the levels of inflammasome activation in the brains of mice that were housed in the International Space Station (ISS) for 37 days. C57BL/6 mice were launched to the ISS as part of NASA’s Rodent Research 1 Mission on SpaceX-4 CRS-4 Dragon cargo spacecraft from September 21st, 2014, to October 25th, 2014. Dissected mouse brains from that mission were analyzed by immunoblotting of inflammasome signaling proteins and Electrochemiluminescence Immunoassay (ECLIA) for inflammatory cytokine levels. Our data indicate decreased inflammasome activation in the brains of mice that were housed in the ISS for 37 days when compared to the brains of mice that were maintained on the ground, and in mice corresponding to the baseline group that were sacrificed at the time of launching of SpaceX-4. Moreover, we did not detect any significant changes in the expression levels of the pro-inflammatory cytokines TNF-alpha, IL-2, IFN-gamma, IL-5, IL-6, IL-12p70 and IL-10 between the ground control and the flight groups. Together, these studies suggest that spaceflight results in a decrease in the levels of innate immune signaling molecules that govern inflammasome signaling in the brain of mice. This dataset derives results from the ECLIA and Western Blot assays using brain tissue.",
+          "organism": "Mus musculus",
+          "Data Source Type": "alsda     cgene"
+        }
+      },
+      "text_preview": "Animal Husbandry     sample collection     Protein Gel Info     Protein Blot Transfer Info     Blocking Protocol     Labeling Information     Primary Antibody     Secondary Antibody     Western Blot Imaging     Western Blot Quantification     Image Metadata     ALSDA Transformed Data     Assay Information     ECLIA Procedure\n"
+    },
+    {
+      "id": "osdr-310",
+      "meta": {
+        "origin": "osdr",
+        "osd_numeric_id": "310",
+        "osd_label": "OSD-310",
+        "title_pre": "sample collection     Histomorphometry     ALSDA Processed Data     Animal Husbandry",
+        "program": "Space Transportation System (Shuttle), STS-62",
+        "mission_start": "04-Mar-1994",
+        "mission_end": "18-Mar-1994",
+        "raw": {
+          "Authoritative Source URL": "OSD-310/",
+          "Flight Program": "Space Transportation System (Shuttle), STS-62",
+          "Mission": {
+            "End Date": "18-Mar-1994",
+            "Start Date": "04-Mar-1994",
+            "Name": "STS-62"
+          },
+          "Material Type": "Second Lumbar Vertebrae",
+          "Project Identifier": "Physiological Systems Experiment-04 (PSE.04)",
+          "Accession": "OSD-310",
+          "Identifiers": "GLDS-310     LSDS-30",
+          "Study Identifier": "OSD-310",
+          "Study Protocol Name": "sample collection     Histomorphometry     ALSDA Processed Data     Animal Husbandry",
+          "Study Assay Technology Type": "Histomorphometry",
+          "Acknowledgments": "",
+          "Study Assay Technology Platform": "OsteoMeasure System (OsteoMetrics)",
+          "Study Person": {
+            "Last Name": "Keune Philbrick Branscum Iwaniec Turner",
+            "Middle Initials": "A A J T T",
+            "First Name": "Jessica Kenneth Adam Urszula Russell"
+          },
+          "Study Protocol Type": "sample collection     Histomorphometry     Data Transformation     Animal Husbandry",
+          "Space Program": "NASA",
+          "Study Title": "Spaceflight-induced (STS-62) vertebral bone loss in ovariectomized rats is associated with increased bone marrow adiposity and no change in bone formation",
+          "Study Factor Type": "Space Flight",
+          "Study Public Release Date": 1679875200.0,
+          "Parameter Value": "",
+          "thumbnail": "/geode-py/ws/studies/OSD-310/image",
+          "Study Factor Name": "Spaceflight",
+          "Study Assay Measurement Type": "Histological Assay",
+          "Project Type": "Spaceflight Study",
+          "Factor Value": "",
+          "Data Source Accession": "NNX12AL24G__3471201692",
+          "Project Title": "Role of Marrow Adipocytes in Bone Loss during Simulated Spaceflight (NNX12AL24G)",
+          "Study Funding Agency": "This work was supported by the National Science Foundation Research Traineeship Program (DGE-0956280) and a grant from the National Aeronautics and Space Administration (NNX12AL24G).",
+          "Study Protocol Description": "Flight animals were sacrificed 4-6 hours after landing. Additional ground-based ovary-intact rats (n equals 18) were evaluated. The ovary-intact animals represent reserve rats to be used if the originally planned flight had been delayed. Since the mission was carried out as anticipated, these animals were maintained in a vivarium and sacrificed to provide age-matched reference values for baseline (n equals 8, 12 weeks old) and flight (n equals 10, 14 weeks old). The purpose of the ovary-intact controls was 2-fold: 1) to evaluate normal age-related changes in bone over the 2 week flight period, and 2) to verify that ovariectomies (OVX) resulted in anticipated cancellous osteopenia. This dataset is only the data from OVX animals. All rats were sacrificed by decapitation and bones were harvested and placed in 70% ethanol for analysis.     Second lumbar vertebrae from 11 rats per group were available for evaluation. The bones were prepared for histological analysis as described. In brief, specimens were dehydrated in increased concentrations of ethanol and embedded in a mixture of methyl methacrylate and 2-hydroxyethyl-methacrylate (in a 12.5:1 ratio). Five-micrometer-thin sections were then cut on a microtome (model 2065, Reichert-Jung, Heidelberg, Germany) and stained with toluidine blue (Sigma Chemical, St Louis, MO, USA). The staining technique allowed simultaneous quantification of cells and fluorochrome label.\n\nThe effects of spaceflight on bone resorption and osteoblast turnover were evaluated using a novel approach. Specifically, the preflight fluorochrome label was used to identify bone perimeter undergoing mineralization in preflight animals experiencing normal weight bearing. Because preflight fluorochrome label perimeter is assumed to be similar in the rats randomly assigned to a group (ground control or flight), post-flight differences in label length represent intergroup differences in bone resorption during flight. In turn, the perimeter bounded by preflight label with adjacent osteoblasts represents continuous bone formation throughout the duration of flight, whereas fluorochrome label with no adjacent osteoblasts reflects sites undergoing bone mineralization at the time of label administration but not subsequently (ceased bone formation). In contrast, bone perimeter bounded by osteoblasts with no adjacent label represents sites where bone formation was newly initiated during flight (i.e., following administration of the preflight label). Cell and fluorochrome data were simultaneously collected by viewing the sections under combined visible light and ultraviolet light using the OsteoMeasure System (OsteoMetrics, Atlanta, GA, USA). Endpoints evaluated included bone area fraction (bone area/tissue area, area of total\ntissue evaluated occupied by cancellous bone, %), fluorochrome label length (length/tissue area, mm/mm2) and osteoclast perimeter (osteoclast\nperimeter/bone perimeter, %). Fluorochrome-based indices of bone formation included measurements of continuous bone formation during\nflight (percentage of bone lined with osteoblasts associated with the single label; %), ceased bone formation during flight (percentage of bone\nperimeter with label not associated with osteoblasts, %), newly initiated bone formation during flight (percentage of osteoblast perimeter not\nassociated with label, %) and mineral apposition rate (mean distance between the fluorochrome marker and osteoblast-lined perimeter divided\nby number of days between the label injection and killing (15 days), μm/day). MAT (% tissue area) and adipocyte number ( /mm2) were measured and adipocyte size (μm2) was determined by dividing MAT by adipocyte number.     To enable maximal data reuse (for machine-readable approaches), the submitted version of this dataset was subsequently transformed and edited to be aligned with a bone histomorphometry data reuse template, which was created through feedback provided by subject matter experts in the ALSDA Analysis Working Group. This transformed reusable version is structured so all results are standardized into specific rows (source/subject) and columns (measures/parameters). This enables all histomorphometry results to be identically structured for efficient data mining.     Twelve-week-old female Fischer 344 rats (Taconic Farms, Germantown, NY) were used in the study. The animals were maintained in accordance with the NIH Guide for the Care and Use of Laboratory Animals and the experimental protocol was approved by the NASA and Mayo Clinic Animal Care and Use Committees. The rats were ovx 14 days prior to launch and randomly assigned to one of two treatment groups: 1) ground-based flight control (ground control, n equals 12), or 2) spaceflight (flight, n equals 12). The flight animals were flown on the Space Shuttle Columbia (STS-62) for 14 days. Flight and ground control animals were housed in animal enclosure modules (AEM) with 6 rats/AEM. The AEMs were maintained at 28 °C. All animals were provided with food (Teklad L356 food bars; Teklad Inc., Madison, WI) and water ad libitum.",
+          "Experiment Platform": "Animal Enclosure Module (AEM)",
+          "Characteristics": "",
+          "Study Grant Number": "",
+          "Study Publication Author List": "Keune Jessica A  Philbrick Kenneth A  Branscum Adam J  Iwaniec Urszula T  Turner Russell T",
+          "Project Link": "https://nlsp.nasa.gov/view/lsdapub/lsda_experiment/0645ab04-f0d0-5b9b-90ee-ed93a978a255",
+          "Study Publication Title": "Spaceflight-induced vertebral bone loss in ovariectomized rats is associated with increased bone marrow adiposity and no change in bone formation",
+          "Managing NASA Center": "Ames Research Center (ARC)",
+          "Study Description": "There is often a reciprocal relationship between bone marrow adipocytes and osteoblasts, suggesting that marrow adipose tissue (MAT) antagonizes osteoblast differentiation. MAT is increased in rodents during spaceflight but a causal relationship between MAT and bone loss remains unclear. In the present study, we evaluated the effects of a 14-day spaceflight on bone mass, bone resorption, bone formation, and MAT in lumbar vertebrae of ovariectomized (OVX) rats. Twelve-week-old OVX Fischer 344 rats were randomly assigned to a ground control or flight group. Following flight, histological sections of the second lumbar vertebrae (n equals 11/group) were stained using a technique that allowed simultaneous quantification of cells and preflight fluorochrome label. Compared with ground controls, rats flown in space had 32% lower cancellous bone area and 306% higher MAT. The increased adiposity was due to an increase in adipocyte number (224%) and size (26%). Mineral apposition rate and osteoblast turnover were unchanged during spaceflight. In contrast, resorption of a preflight fluorochrome and osteoclast-lined bone perimeter were increased (16% and 229%, respectively). The present findings indicate that cancellous bone loss in rat lumbar vertebrae during spaceflight is accompanied by increased bone resorption and MAT but no change in bone formation. These findings do not support the hypothesis that increased MAT during spaceflight reduces osteoblast activity or lifespan. However, in the context of ovarian hormone deficiency, bone formation during spaceflight was insufficient to balance increased resorption, indicating defective coupling. The results are therefore consistent with the hypothesis that during spaceflight mesenchymal stem cells are diverted to adipocytes at the expense of forming osteoblasts. This dataset derives results from the bone histomorphometry assay.",
+          "organism": "Rattus norvegicus",
+          "Data Source Type": "cgene     alsda"
+        }
+      },
+      "text_preview": "sample collection     Histomorphometry     ALSDA Processed Data     Animal Husbandry\n"
     }
   ]
 }
