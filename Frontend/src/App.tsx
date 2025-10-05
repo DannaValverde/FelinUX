@@ -1,494 +1,338 @@
-import React, { useEffect, useRef, useState } from "react";
-import { FiZap, FiFilter, FiArrowLeft, FiSearch } from "react-icons/fi";
+// src/App.tsx
+import { useMemo, useState } from "react";
+import {
+  FiSearch,
+  FiRotateCcw,
+  FiSliders,
+  FiChevronDown,
+  FiInfo,
+} from "react-icons/fi";
+import { createOsdrApi, type QueryResponse, type PaperMeta } from "./lib/OsdrApi";
 
-/* =============================
-   🔹 Tipos
-   ============================= */
-type SearchMode = "ai" | "manual";
+function titleFromMeta(meta: PaperMeta) {
+  return (meta.title ?? meta.title_pre ?? "(untitled)") as string;
+}
+function originBadge(origin?: string) {
+  if (origin === "osdr") return "OSDR";
+  if (origin === "csv") return "CSV";
+  return "Unknown";
+}
 
 export default function App() {
-  /* =============================
-     🔹 Estados principales
-     ============================= */
-  const [query, setQuery] = useState<string>("");
-  const [isSearching, setIsSearching] = useState<boolean>(false);
-  const [searchMode, setSearchMode] = useState<SearchMode>("ai");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [data, setData] = useState<QueryResponse | null>(null);
 
-  /* =============================
-     🔹 Modal y dropdowns
-     ============================= */
-  const [showFilters, setShowFilters] = useState<boolean>(false);
-  const [fileOptionsOpen, setFileOptionsOpen] = useState<boolean>(false);
+  // 👇 Estados SOLO de UI para el panel de filtros (sin funcionalidad de IA)
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [organism, setOrganism] = useState("");
+  const [accession, setAccession] = useState("");
+  const [fileType, setFileType] = useState("");
+  const [assay, setAssay] = useState("");
+  const [factors, setFactors] = useState("");
+  const [fileMenuOpen, setFileMenuOpen] = useState(false);
 
-  /* =============================
-     🔹 Filtros
-     ============================= */
-  const [organism, setOrganism] = useState<string>("");
-  const [accession, setAccession] = useState<string>("");
-  const [fileType, setFileType] = useState<string>("");
-  const [assay, setAssay] = useState<string>("");
-  const [factors, setFactors] = useState<string>("");
-  const [year, setYear] = useState<string>("");
-  const [mission, setMission] = useState<string>("");
+  const api = useMemo(
+    () =>
+      createOsdrApi({
+        baseUrl: import.meta.env.VITE_OSDR_API_BASE ?? "http://localhost:8000",
+        timeoutMs: 30000,
+      }),
+    []
+  );
 
-  const filtersRef = useRef<HTMLDivElement | null>(null);
-
-  const fileOptions = [
-    "Study",
-    "Experiment",
-    "Subject",
-    "Biospecimen",
-    "Payload",
-    "Genomic Data",
-  ];
-
-  const missionOptions = [
-    "ISS",
-    "Artemis",
-    "Apollo",
-    "Space Shuttle",
-    "Commercial Crew",
-    "Other",
-  ];
-
-  /* =============================
-     🔹 Efectos
-     ============================= */
-  useEffect(() => {
-    function handleOutside(e: MouseEvent | TouchEvent) {
-      if (
-        showFilters &&
-        filtersRef.current &&
-        !filtersRef.current.contains(e.target as Node)
-      ) {
-        setShowFilters(false);
-        setFileOptionsOpen(false);
-      }
-    }
-    function handleEsc(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setShowFilters(false);
-        setFileOptionsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleOutside);
-    document.addEventListener("touchstart", handleOutside);
-    document.addEventListener("keydown", handleEsc);
-    return () => {
-      document.removeEventListener("mousedown", handleOutside);
-      document.removeEventListener("touchstart", handleOutside);
-      document.removeEventListener("keydown", handleEsc);
-    };
-  }, [showFilters]);
-
-  /* =============================
-     🔹 Handlers
-     ============================= */
-  const handleAISearch = async (e?: React.FormEvent) => {
+  const onSearch = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!query.trim()) return;
-    setIsLoading(true);
-    setSearchMode("ai");
-    await new Promise((r) => setTimeout(r, 1200)); // simulación
-    setIsSearching(true);
-    setIsLoading(false);
-    console.log("AI search:", query);
+    if (!query.trim() || loading) return;
+    setLoading(true);
+    setErrorMsg(null);
+    setData(null);
+    try {
+      const res = await api.query({ query, top_k: 8 });
+      setData(res);
+    } catch (err: any) {
+      const msg =
+        err?.message ??
+        (typeof err === "string" ? err : "Unexpected error performing query");
+      setErrorMsg(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAdvancedSearch = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    setIsLoading(true);
-    setSearchMode("manual");
-    setShowFilters(false);
-    setFileOptionsOpen(false);
-    await new Promise((r) => setTimeout(r, 900)); // simulación
-    setIsSearching(true);
-    setIsLoading(false);
-    console.log("Advanced search with:", {
-      query,
+  const reset = () => {
+    setQuery("");
+    setData(null);
+    setErrorMsg(null);
+    setLoading(false);
+  };
+
+  // 👉 Botón “Advanced Search” (solo UI por ahora)
+  const onAdvancedSearchClick = () => {
+    console.log("Advanced search (UI only):", {
       organism,
       accession,
       fileType,
       assay,
       factors,
-      year,
-      mission,
     });
   };
 
-  const clearFilters = () => {
+  const clearAdvanced = () => {
     setOrganism("");
     setAccession("");
     setFileType("");
     setAssay("");
     setFactors("");
-    setYear("");
-    setMission("");
   };
 
-  const resetView = () => {
-    setIsSearching(false);
-    setQuery("");
-    setIsLoading(false);
-  };
-
-  const toggleFileType = (opt: string) => {
-    setFileType((prev) => (prev === opt ? "" : opt));
-  };
-
-  const editFilter = () => {
-    setShowFilters(true);
-    setSearchMode("manual");
-  };
-
-  const hasActiveFilters =
-    organism || accession || fileType || assay || factors || year || mission;
-
-  /* =============================
-     🔹 Render principal
-     ============================= */
-
-  const body = (
+  return (
     <div className="min-h-screen bg-base-200 text-base-content">
-      {/* contenedor más ancho */}
-      <div className="max-w-screen-xl mx-auto px-6 md:px-10 py-10">
-        {/* Header grande */}
-        <header className="text-center mb-10">
-          <h1 className="text-6xl font-extrabold tracking-tight">729</h1>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mt-2">
+      <div className="max-w-5xl mx-auto px-6 md:px-10 py-10">
+        {/* Header */}
+        <header className="text-center mb-8">
+          <h1 className="text-5xl font-extrabold tracking-tight">7to9</h1>
+          <h2 className="text-3xl md:text-4xl font-bold mt-2">
             Space Biology Knowledge Engine
           </h2>
-          <p className="opacity-70 text-base md:text-lg mt-3">Made By FelinUX Team</p>
-          <p className="opacity-70 text-base md:text-lg">NASA Space Apps Challenge 2025</p>
+          <p className="opacity-70 mt-2">NASA Space Apps Challenge 2025 — FelinUX</p>
         </header>
 
-        {/* Barra de búsqueda XL (casi todo el ancho) */}
-        <div className="w-full mb-8">
-          <div className="flex w-full items-center gap-3">
-            {/* Barra de búsqueda */}
-            <input
-              type="text"
-              className="input input-bordered w-full h-16 rounded-full text-lg px-6"
-              placeholder={
-                searchMode === "ai"
-                  ? "Ask about space biology research in natural language..."
-                  : "Search with specific criteria using the filters..."
-              }
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !isLoading) {
-                  searchMode === "ai" ? handleAISearch(e) : handleAdvancedSearch(e);
-                }
-              }}
-              disabled={isLoading}
-              aria-label="Main search input"
-            />
+        {/* Search Bar */}
+        <form onSubmit={onSearch} className="flex w-full items-center gap-3 mb-3">
+          <input
+            type="text"
+            className="input input-bordered w-full h-14 rounded-full text-lg px-6"
+            placeholder="Ask about space biology research…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            disabled={loading}
+            aria-label="Search query"
+          />
+          <button
+            type="submit"
+            className={`btn btn-primary rounded-full h-14 w-14 p-0 ${
+              loading ? "btn-disabled" : ""
+            }`}
+            aria-label="Search"
+            disabled={loading}
+            title="Search"
+          >
+            <FiSearch className="text-2xl" />
+          </button>
 
-            {/* Botón circular con la misma altura */}
+          {/* 🔘 Toggle para mostrar/ocultar panel de filtros físicos */}
+          <button
+            type="button"
+            className="btn btn-ghost rounded-full h-14 w-14 p-0"
+            onClick={() => setShowAdvanced((v) => !v)}
+            aria-expanded={showAdvanced}
+            aria-controls="advanced-panel"
+            title="Toggle advanced filters"
+          >
+            <FiSliders className="text-2xl" />
+          </button>
+
+          {data || errorMsg ? (
             <button
-              className={`btn btn-primary rounded-full flex items-center justify-center p-0 ${isLoading ? "btn-disabled" : ""
-                } h-16 w-16`}
-              title="Search"
-              onClick={searchMode === "ai" ? handleAISearch : handleAdvancedSearch}
-              aria-label="Search"
-              disabled={isLoading}
+              type="button"
+              className="btn btn-ghost rounded-full h-14 w-14 p-0"
+              onClick={reset}
+              title="Reset"
             >
-              <FiSearch className="text-3xl" />
+              <FiRotateCcw className="text-2xl" />
             </button>
-          </div>
-        </div>
+          ) : null}
+        </form>
 
+        {/* Panel de filtros FÍSICO (no modal) */}
+        {showAdvanced && (
+          <section
+            id="advanced-panel"
+            className="mb-6 card bg-base-100 border border-base-300"
+          >
+            <div className="card-body">
+              <h3 className="card-title text-xl mb-2">
+                What are you looking for today?
+              </h3>
 
-        {/* Modal de filtros manuales */}
-        {showFilters && (
-          <div className="modal modal-open">
-            <div className="modal-box max-w-3xl" ref={filtersRef}>
-              <h3 className="font-bold text-lg">Manual Filter</h3>
-              <p className="py-2 opacity-70">
-                Fill the fields to refine your search and press{" "}
-                <span className="font-semibold">Advanced Search</span>.
-              </p>
-
-              <form onSubmit={handleAdvancedSearch} className="mt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Organism */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Organism</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      placeholder="Enter organism name"
-                      value={organism}
-                      onChange={(e) => setOrganism(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Accession */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Accession (OSD-)</span>
-                    </label>
-                    <label className="input input-bordered flex items-center gap-2">
-                      <span className="opacity-70">OSD-</span>
-                      <input
-                        type="text"
-                        className="grow"
-                        placeholder="e.g. 001A"
-                        value={accession}
-                        onChange={(e) => setAccession(e.target.value)}
-                      />
-                    </label>
-                  </div>
-
-                  {/* Assay */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Assay</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      placeholder="Type assay..."
-                      value={assay}
-                      onChange={(e) => setAssay(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Factors */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Factors</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input input-bordered"
-                      placeholder="Type factors..."
-                      value={factors}
-                      onChange={(e) => setFactors(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Year */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Year</span>
-                    </label>
-                    <input
-                      type="number"
-                      className="input input-bordered"
-                      placeholder="e.g. 2024"
-                      value={year}
-                      onChange={(e) => setYear(e.target.value)}
-                      min={1960}
-                      max={2025}
-                    />
-                  </div>
-
-                  {/* Mission */}
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text">Mission</span>
-                    </label>
-                    <select
-                      className="select select-bordered"
-                      value={mission}
-                      onChange={(e) => setMission(e.target.value)}
-                    >
-                      <option value="">Select mission…</option>
-                      {missionOptions.map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* File Type */}
-                  <div className="form-control md:col-span-2">
-                    <label className="label">
-                      <span className="label-text">File Type</span>
-                    </label>
-                    <div className="dropdown">
-                      <div
-                        tabIndex={0}
-                        role="button"
-                        className="btn w-full justify-between"
-                        onClick={() => setFileOptionsOpen((v) => !v)}
-                      >
-                        <span>{fileType || "Choose file type…"}</span>
-                        <span className="opacity-70">
-                          {fileOptionsOpen ? "▴" : "▾"}
-                        </span>
-                      </div>
-                      {fileOptionsOpen && (
-                        <ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full mt-2">
-                          {fileOptions.map((opt) => (
-                            <li key={opt}>
-                              <button
-                                type="button"
-                                className={`btn btn-sm justify-start ${fileType === opt
-                                  ? "btn-primary"
-                                  : "btn-ghost"
-                                  }`}
-                                onClick={() => toggleFileType(opt)}
-                              >
-                                {opt}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Organism */}
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text flex items-center gap-2">
+                      Organism <FiInfo className="opacity-60" />
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input input-bordered rounded-full"
+                    placeholder="e.g., Mouse"
+                    value={organism}
+                    onChange={(e) => setOrganism(e.target.value)}
+                  />
                 </div>
 
-                <div className="modal-action">
-                  <button
-                    type="button"
-                    className="btn btn-ghost"
-                    onClick={clearFilters}
-                  >
-                    Clear
-                  </button>
-                  <button
-                    type="submit"
-                    className={`btn ${isLoading ? "btn-disabled" : "btn-primary"
-                      }`}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Searching..." : "Advanced Search"}
-                  </button>
+                {/* Accession */}
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text flex items-center gap-2">
+                      Accession <FiInfo className="opacity-60" />
+                    </span>
+                  </label>
+                  <label className="input input-bordered rounded-full flex items-center gap-2">
+                    <span className="opacity-70">OSD-</span>
+                    <input
+                      type="text"
+                      className="grow"
+                      placeholder="001A"
+                      value={accession}
+                      onChange={(e) => setAccession(e.target.value)}
+                    />
+                  </label>
                 </div>
-              </form>
 
-              <button
-                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                onClick={() => setShowFilters(false)}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
+                {/* Assay (fila completa en md:col-span-2 para aire) */}
+                <div className="form-control md:col-span-2">
+                  <label className="label">
+                    <span className="label-text flex items-center gap-2">
+                      Assay <FiInfo className="opacity-60" />
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input input-bordered rounded-full"
+                    placeholder="e.g., RNA-Seq"
+                    value={assay}
+                    onChange={(e) => setAssay(e.target.value)}
+                  />
+                </div>
 
-        {/* Resultados */}
-        {isSearching && (
-          <section className="space-y-4">
-            <div className="flex items-center gap-3">
-              <button
-                className="btn btn-circle btn-outline"
-                onClick={resetView}
-                aria-label="Back"
-              >
-                <FiArrowLeft />
-              </button>
-              <div>
-                <h4 className="text-lg font-semibold">
-                  {searchMode === "ai"
-                    ? `AI Search: "${query}"`
-                    : "Advanced Filter Results"}
-                </h4>
+                {/* Factors */}
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text flex items-center gap-2">
+                      Factors <FiInfo className="opacity-60" />
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input input-bordered rounded-full"
+                    placeholder="e.g., Microgravity"
+                    value={factors}
+                    onChange={(e) => setFactors(e.target.value)}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Filtros activos */}
-            {searchMode === "manual" && hasActiveFilters && (
-              <div>
-                <div className="flex flex-wrap gap-2">
-                  {organism && (
-                    <span
-                      className="badge badge-info badge-outline cursor-pointer"
-                      onClick={editFilter}
-                    >
-                      Organism: {organism}
-                    </span>
-                  )}
-                  {accession && (
-                    <span
-                      className="badge badge-info badge-outline cursor-pointer"
-                      onClick={editFilter}
-                    >
-                      Accession: OSD-{accession}
-                    </span>
-                  )}
-                  {fileType && (
-                    <span
-                      className="badge badge-info badge-outline cursor-pointer"
-                      onClick={editFilter}
-                    >
-                      File Type: {fileType}
-                    </span>
-                  )}
-                  {assay && (
-                    <span
-                      className="badge badge-info badge-outline cursor-pointer"
-                      onClick={editFilter}
-                    >
-                      Assay: {assay}
-                    </span>
-                  )}
-                  {factors && (
-                    <span
-                      className="badge badge-info badge-outline cursor-pointer"
-                      onClick={editFilter}
-                    >
-                      Factors: {factors}
-                    </span>
-                  )}
-                  {year && (
-                    <span
-                      className="badge badge-info badge-outline cursor-pointer"
-                      onClick={editFilter}
-                    >
-                      Year: {year}
-                    </span>
-                  )}
-                  {mission && (
-                    <span
-                      className="badge badge-info badge-outline cursor-pointer"
-                      onClick={editFilter}
-                    >
-                      Mission: {mission}
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm opacity-70 mt-1">
-                  Click any filter to edit.
-                </p>
-              </div>
-            )}
-
-            {/* Ejemplo de resultados */}
-            <div className="grid gap-4">
-              <div className="card bg-base-100 border border-base-300">
-                <div className="card-body">
-                  <div className="badge badge-ghost mb-2">NASA Study</div>
-                  <h5 className="card-title">
-                    Effects of Microgravity on Plant Growth
-                  </h5>
-                  <div className="text-sm opacity-70 flex flex-wrap gap-2">
-                    <span>ISS</span>•<span>2023</span>•<span>Plant Biology</span>•
-                    <span>Accession: OSD-045B</span>
-                  </div>
-                  <p className="mt-2">
-                    Analysis of <em>Arabidopsis thaliana</em> growth under
-                    microgravity aboard the ISS.
-                  </p>
-                  <div className="card-actions justify-end">
-                    <button className="btn btn-primary">View Study</button>
-                    <button className="btn btn-outline">Download Data</button>
-                  </div>
-                </div>
+              {/* Acciones del panel (solo UI) */}
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  className="btn btn-primary rounded-full"
+                  onClick={onAdvancedSearchClick}
+                >
+                  Advanced Search
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost rounded-full"
+                  onClick={clearAdvanced}
+                >
+                  Clear
+                </button>
               </div>
             </div>
           </section>
         )}
+
+        {/* Estados */}
+        {loading && (
+          <div className="w-full flex justify-center">
+            <span className="loading loading-spinner loading-lg" />
+          </div>
+        )}
+
+        {errorMsg && !loading && (
+          <div className="alert alert-error mb-6">
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
+        {/* Resultados */}
+        {data && !loading && (
+          <section className="space-y-6">
+            {data.summary && (
+              <article className="card bg-base-100 border border-base-300">
+                <div className="card-body">
+                  <h3 className="card-title">AI Summary</h3>
+                  <p className="whitespace-pre-wrap">{data.summary}</p>
+                </div>
+              </article>
+            )}
+
+            <div className="grid gap-4">
+              {data.results.map((item) => (
+                <div key={item.id} className="card bg-base-100 border border-base-300">
+                  <div className="card-body">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="badge badge-ghost">
+                        {originBadge(item.meta.origin)}
+                      </div>
+                      {typeof item.meta.osd_numeric_id === "number" && (
+                        <div className="badge badge-outline">
+                          OSD-{String(item.meta.osd_numeric_id).padStart(3, "0")}
+                        </div>
+                      )}
+                    </div>
+
+                    <h4 className="card-title">{titleFromMeta(item.meta)}</h4>
+
+                    {item.text_preview && (
+                      <p className="opacity-80">{item.text_preview}</p>
+                    )}
+
+                    {(item.meta.related_osdr?.length ||
+                      item.meta.related_csv?.length) && (
+                      <div className="text-sm opacity-70 flex flex-wrap gap-2">
+                        {item.meta.related_osdr?.length ? (
+                          <span>Related OSDR: {item.meta.related_osdr.join(", ")}</span>
+                        ) : null}
+                        {item.meta.related_csv?.length ? (
+                          <span>Related CSV: {item.meta.related_csv.join(", ")}</span>
+                        ) : null}
+                      </div>
+                    )}
+
+                    {item.meta.files?.length ? (
+                      <div className="card-actions justify-end pt-2">
+                        {item.meta.files.map((f, idx) => (
+                          <a
+                            key={idx}
+                            className="btn btn-outline btn-sm"
+                            href={f.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {f.name || "Download"}
+                          </a>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {!loading && !data && !errorMsg && (
+          <p className="text-center opacity-70">
+            Aks any question and click the search button
+          </p>
+        )}
       </div>
     </div>
   );
-  return body;
 }

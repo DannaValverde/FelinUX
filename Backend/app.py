@@ -2,6 +2,7 @@
 import os
 import json
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware  # 👈
 from pydantic import BaseModel
 from typing import List, Optional
 import pandas as pd
@@ -16,6 +17,18 @@ META_PATH = os.getenv("FAISS_META_PATH", "data/faiss_meta.json")
 CSV_PAPERS_PATH = os.getenv("CSV_PAPERS_PATH", "data/papers.csv")
 
 app = FastAPI(title="NASA OSDR RAG API")
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,    # en prod, pon tu dominio real
+    allow_credentials=True,
+    allow_methods=["*"],              # GET, POST, OPTIONS, etc.
+    allow_headers=["*"],              # Content-Type, Authorization, etc.
+)
 
 class QueryRequest(BaseModel):
     query: str
