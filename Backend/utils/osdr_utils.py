@@ -1,7 +1,9 @@
+# utils/osdr_utils.py
 import re, requests
 from urllib.parse import quote
+import os
 
-BASE = "https://osdr.nasa.gov"
+BASE = os.getenv("OSDR_BASE", "https://osdr.nasa.gov")
 SEARCH_URL = f"{BASE}/osdr/data/search"
 META_URL = f"{BASE}/osdr/data/osd/meta"
 FILES_URL = f"{BASE}/osdr/data/osd/files"
@@ -66,12 +68,13 @@ def search_studies_osdr(query, size=20):
             "title_pre": title_pre,
             "program": src.get("Flight Program") or src.get("Program") or "Unknown",
             "mission_start": mission.get("Start Date") or "Unknown",
-            "mission_end": mission.get("End Date") or "Unknown"
+            "mission_end": mission.get("End Date") or "Unknown",
+            "raw": src
         })
     return results
 
 def get_study_meta(osd_numeric_id):
-    url = f"{META_URL}/{quote(osd_numeric_id)}"
+    url = f"{META_URL}/{quote(str(osd_numeric_id))}"
     r = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
     if r.status_code != 200:
         return None
@@ -81,7 +84,7 @@ def get_study_meta(osd_numeric_id):
         return None
 
 def get_study_files(osd_numeric_id):
-    url = f"{FILES_URL}/{quote(osd_numeric_id)}"
+    url = f"{FILES_URL}/{quote(str(osd_numeric_id))}"
     r = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
     if r.status_code != 200:
         return []
@@ -94,7 +97,7 @@ def get_study_files(osd_numeric_id):
     if not isinstance(files_list, list):
         return []
     processed = []
-    for f in files_list[:5]:
+    for f in files_list[:10]:
         remote = f.get("remote_url") or f.get("remote") or ""
         processed.append({
             "name": f.get("name") or f.get("file_name") or "",
