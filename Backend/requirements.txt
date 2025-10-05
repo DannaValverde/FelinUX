@@ -13,3 +13,4 @@ python-multipart
 altair
 python-dotenv
 streamlit-aggrid
+bertopic
