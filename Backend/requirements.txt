@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+pydantic
+numpy
+torch
+transformers
+sentence-transformers
+faiss-cpu
+requests
+pandas
+streamlit
+python-multipart
+altair
+python-dotenv
+streamlit-aggrid
+bertopic
