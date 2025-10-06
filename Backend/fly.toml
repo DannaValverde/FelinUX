@@ -1,5 +1,4 @@
-  app = "felinux-api
-"
+  app = "felinux-api"
 
   [build]
     dockerfile = "Dockerfile"
