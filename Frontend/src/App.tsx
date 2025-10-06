@@ -53,7 +53,7 @@ export default function App() {
     setLoading(false);
   };
 
-  // Variants para animaciones
+  // Animation variants
   const searchWrapVariants = {
     initial: { opacity: 1, y: 0, scale: 1 },
     compact: { opacity: 1, y: -12, scale: 0.96 },
@@ -71,14 +71,19 @@ export default function App() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.98 },
-    show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 260, damping: 22 } },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { type: "spring", stiffness: 260, damping: 22 },
+    },
     exit: { opacity: 0, y: 10, scale: 0.98, transition: { duration: 0.15 } },
   };
 
   return (
     <div className="min-h-screen bg-base-200 text-base-content">
       <div className="max-w-5xl mx-auto px-6 md:px-10 py-10">
-        {/* Header + Search (animable) */}
+        {/* Header + Search (animated) */}
         <motion.header
           className={`text-center ${hasResults ? "mb-4" : "mb-8"}`}
           initial={{ opacity: 1 }}
@@ -157,7 +162,7 @@ export default function App() {
           </form>
         </motion.div>
 
-        {/* Estados */}
+        {/* Loading state */}
         <AnimatePresence>
           {loading && (
             <motion.div
@@ -172,6 +177,7 @@ export default function App() {
           )}
         </AnimatePresence>
 
+        {/* Error state */}
         <AnimatePresence>
           {errorMsg && !loading && (
             <motion.div
@@ -186,7 +192,7 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* Resultados (sin AI Summary) */}
+        {/* Results (no AI Summary) */}
         <AnimatePresence mode="wait">
           {hasResults && !loading && (
             <motion.section
@@ -263,14 +269,10 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* Vacío */}
+        {/* Empty state */}
         {!loading && !hasResults && !errorMsg && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.7 }}
-            className="text-center"
-          >
-            Escribe una pregunta y presiona buscar.
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.7 }} className="text-center">
+            Type a question and press search.
           </motion.p>
         )}
       </div>
